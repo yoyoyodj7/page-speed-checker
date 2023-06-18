@@ -1,0 +1,136 @@
+<style>
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    h1 {
+      text-align: center;
+    }
+    
+    form {
+      margin: 20px 0;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    
+    button {
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    
+    #results {
+      margin-top: 20px;
+    }
+    
+    #results h2 {
+      margin-top: 0;
+    }
+    
+    #results h3 {
+      margin-top: 20px;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    </style>
+        <div class="container">
+        
+          <form id="form">
+            <label for="url">Enter URL:</label>
+            <input type="text" id="url" name="url">
+            <button type="submit" id="submit">Check Speed</button>
+          </form>
+          <div id="results" class="hidden">
+            <h2>Results</h2>
+            <div id="crux">
+              <h3>Chrome User Experience Report Results</h3>
+              <ul>
+                <li><strong>First Contentful Paint:</strong> <span id="fcp"></span></li>
+                <li><strong>First Input Delay:</strong> <span id="fid"></span></li>
+              </ul>
+            </div>
+            <div id="lighthouse">
+              <h3>Lighthouse Results</h3>
+              <ul>
+                <li><strong>First Contentful Paint:</strong> <span id="lcp"></span></li>
+                <li><strong>Speed Index:</strong> <span id="speed"></span></li>
+                <li><strong>Time To Interactive:</strong> <span id="tti"></span></li>
+                <li><strong>First Meaningful Paint:</strong> <span id="fmp"></span></li>
+                <li><strong>First CPU Idle:</strong> <span id="fci"></span></li>
+                <li><strong>Estimated Input Latency:</strong> <span id="eil"></span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <script>
+            const form = document.querySelector('#form');
+            const urlInput = document.querySelector('#url');
+            const resultsDiv = document.querySelector('#results');
+            const cruxFCP = document.querySelector('#fcp');
+            const cruxFID = document.querySelector('#fid');
+            const lhLCP = document.querySelector('#lcp');
+            const lhSpeedIndex = document.querySelector('#speed');
+            const lhTTI = document.querySelector('#tti');
+            const lhFMP = document.querySelector('#fmp');
+            const lhFCI = document.querySelector('#fci');
+            const lhEIL = document.querySelector('#eil');
+            
+            const API_KEY = 'AIzaSyB5BN3fI4oWlbWiouTh-0-FZmfhIn7BFlQ';
+            
+            form.addEventListener('submit', (event) => {
+              event.preventDefault();
+              const url = urlInput.value;
+              if (!url) {
+                alert('Please enter a valid URL.');
+                return;
+              }
+              const api = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&key=${API_KEY}`;
+              fetch(api)
+                .then(response => response.json())
+                .then(json => {
+                  resultsDiv.classList.remove('hidden');
+                  cruxFCP.textContent = json.loadingExperience.metrics.FIRST_CONTENTFUL_PAINT_MS.category;
+                  cruxFID.textContent = json.loadingExperience.metrics.FIRST_INPUT_DELAY_MS.category;
+                  lhLCP.textContent = json.lighthouseResult.audits['first-contentful-paint'].displayValue;
+                  lhSpeedIndex.textContent = json.lighthouseResult.audits['speed-index'].displayValue;
+                  lhTTI.textContent = json.lighthouseResult.audits['interactive'].displayValue;
+                  lhFMP.textContent = json.lighthouseResult.audits['first-meaningful-paint'].displayValue;
+                  lhFCI.textContent = json.lighthouseResult.audits['first-cpu-idle']?.displayValue;
+lhEIL.textContent = json.lighthouseResult.audits['estimated-input-latency']?.displayValue;
+
+                })
+                .catch(error => {
+                  alert('Error fetching data. Please try again later.');
+                  console.error(error);
+                });
+            });
+            
+            </script>
